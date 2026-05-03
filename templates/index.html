@@ -1,0 +1,12 @@
+<h1>Licitações PNCP</h1>
+
+{% for item in dados %}
+    <div>
+        <p>Orgao: {{ item.razaoSocial }}</p>
+        <p>CNPJ: {{ item.cnpj }}</p>
+        <p>Data : {{ item.dataInclusao }}</p>
+        <p>Natureza Juridica: {{ item.codigoNaturezaJuridica }}</p>
+
+
+    </div>
+{% endfor %}

@@ -1,0 +1,12 @@
+# Variáveis sensíveis
+.env
+
+# Banco
+*.db
+
+# Python
+__pycache__/
+*.pyc
+
+# Ambiente virtual
+venv/
