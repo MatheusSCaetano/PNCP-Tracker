@@ -13,23 +13,16 @@ def run():
 
     password = ["software juridico", "saas juridico", "recorte", "acompanhamento processos","DEDETIZAÇÃO", "Limpeza"]
 
-    filtrados = filter(dados,password )
-    print(filtrados)
+    filtered = filter(dados,password )
+    print(filtered)
     news = []
 
-    for item in filtrados:
+    for item in filtered:
         if not exists(item["id"]):
             save(item)
             news.append(item)
 
-    send_email(filtrados)
+    send_email(filtered) #depois dos testes, trocar para news
 
-    # print(f"Total coletado: {len(dados)}")
-    #print("Exemplo de dado:")
-    #print(dados[:100])
-
-    # print(f"Filtrados: {len(filtrados)}")
-    #print("editais_com_itens",editais_com_itens)
-    # print("filtrados: ", filtrados)
 if __name__ == "__main__":
     run()
