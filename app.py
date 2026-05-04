@@ -11,10 +11,10 @@ def run():
     dados = organize(editais_com_itens)
     
 
-    password = ["software juridico", "saas juridico", "recorte", "acompanhamento processos","DEDETIZAÇÃO"]
+    password = ["software juridico", "saas juridico", "recorte", "acompanhamento processos","DEDETIZAÇÃO", "Limpeza"]
 
     filtrados = filter(dados,password )
-
+    print(filtrados)
     news = []
 
     for item in filtrados:
@@ -24,12 +24,12 @@ def run():
 
     send_email(filtrados)
 
-    print(f"Total coletado: {len(dados)}")
+    # print(f"Total coletado: {len(dados)}")
     #print("Exemplo de dado:")
     #print(dados[:100])
 
-    print(f"Filtrados: {len(filtrados)}")
+    # print(f"Filtrados: {len(filtrados)}")
     #print("editais_com_itens",editais_com_itens)
-
+    # print("filtrados: ", filtrados)
 if __name__ == "__main__":
     run()

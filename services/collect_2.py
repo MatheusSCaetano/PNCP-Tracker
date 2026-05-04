@@ -2,67 +2,84 @@ import requests
 
 BASE_URL = "https://pncp.gov.br/api/search/"
 
-def coletar_licitacoes_reais(pagina = 6, tamanho=10):
+from datetime import datetime, timedelta, timezone
+
+def eh_recente(data_str, dias=90):
+    try:
+        data = datetime.fromisoformat(data_str.replace("Z", "+00:00"))
+        limite = datetime.now(timezone.utc) - timedelta(days=dias)
+        return data >= limite
+    except Exception as e:
+        print("Erro ao converter data:", data_str, e)
+        return False 
+
+
+def coletar_licitacoes_reais(max_paginas=5, tamanho=10):
     headers = {
         "User-Agent": "Mozilla/5.0",
         "Accept": "application/json"
     }
 
-    params = {
-        "tipos_documento": "edital",
-        "ordenacao": "-data",
-        "pagina": pagina,
-        "tam_pagina": tamanho,
-        "status": "recebendo_proposta"
-    }
-
-    response = requests.get(BASE_URL, headers=headers, params=params, timeout=15)
-
-    print("Status:", response.status_code)
-    print("URL:", response.url)
-
-    if response.status_code != 200:
-        print("Erro ao buscar dados")
-        return []
-
-    data = response.json()
-
-    resultados = data.get("resultados") or data.get("items") or data
-
     licitacoes = []
 
-    for item in resultados:
-        try:
-            desc = item.get("description") or "Sem descrição" #item.get("objeto") or 
-            tittle = item.get("title") or "Sem Título"
-            orgao = item.get("orgao_nome", {})#.get("razao_social", "N/A")
-            cnpj_org = item.get("orgao_cnpj") or ""
-            municipio = item.get("municipio_nome") or ""
-            estado = item.get("uf") or ""
-            sequencial_contrato = item.get("numero_sequencial") or ""
-            ano_contrato = item.get("ano") or ""
-            numero_controle_pncp = item.get("numero_controle_pncp") or ""
-            valor = item.get("valor_global")
-            link = "https://pncp.gov.br/app/editais/" + str(item.get("id", ""))
+    for pagina in range(1, max_paginas + 1):
+        params = {
+            "tipos_documento": "edital",
+            "ordenacao": "-data",
+            "pagina": pagina,
+            "tam_pagina": tamanho,
+            "status": "recebendo_proposta"
+        }
 
-            licitacoes.append({
-                "id": str(item.get("id")),
-                "cnpj": cnpj_org,
-                "ano": ano_contrato,
-                "numero": sequencial_contrato,  # pode precisar ajustar depois
-                "numero_controle": numero_controle_pncp,
-                "tittle": tittle,
-                "description": desc,
-                "org": str(orgao) + str(cnpj_org),
-                "municipio": municipio,
-                "estado": estado,
-                "contrato": f"{sequencial_contrato} - {ano_contrato}",
-                "valor": valor,
-                "link": link
-            })
+        response = requests.get(BASE_URL, headers=headers, params=params, timeout=15)
 
-        except Exception as e:
-            print("Erro ao parsear item:", e)
+        print(f"\n Página {pagina} - Status:", response.status_code)
+
+        if response.status_code != 200:
+            print("Erro ao buscar dados")
+            continue
+
+        data = response.json()
+        resultados = data.get("resultados") or data.get("items") or data
+
+        if not resultados:
+            print("Sem mais resultados, parando...")
+            break
+
+        for item in resultados:
+
+            data_pub = item.get("data_publicacao") or item.get("dataPublicacao")
+
+            if data_pub and not eh_recente(data_pub):
+                continue 
+            
+            try:
+                desc = item.get("description") or "Sem descrição"
+                titulo = item.get("title") or "Sem Título"
+
+                cnpj_org = item.get("orgao_cnpj") or ""
+                ano = item.get("ano") or ""
+                numero = item.get("numero_sequencial") or ""
+                numero_controle = item.get("numero_controle_pncp") or ""
+
+                link = f"https://pncp.gov.br/app/editais/{cnpj_org}/{ano}/{numero}"
+
+                licitacoes.append({
+                    "id": str(item.get("id")),
+                    "cnpj": cnpj_org,
+                    "ano": ano,
+                    "numero": numero,
+                    "numero_controle": numero_controle,
+                    "titulo": titulo,
+                    "descricao": desc,
+                    "municipio": item.get("municipio_nome"),
+                    "estado": item.get("uf"),
+                    "valor": item.get("valor_global"),
+                    "link": link
+                })
+
+            except Exception as e:
+                print("Erro ao parsear item:", e)
 
     return licitacoes
 
