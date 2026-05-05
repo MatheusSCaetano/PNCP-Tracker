@@ -1,12 +1,15 @@
-<h1>Licitações PNCP</h1>
+<form id="licitacao-form">
+    <input type="number" name="number_days" placeholder="Dias Antecedentes" required>
 
-{% for item in dados %}
-    <div>
-        <p>Orgao: {{ item.razaoSocial }}</p>
-        <p>CNPJ: {{ item.cnpj }}</p>
-        <p>Data : {{ item.dataInclusao }}</p>
-        <p>Natureza Juridica: {{ item.codigoNaturezaJuridica }}</p>
+    <!-- <input type="email" id="email" placeholder="Email" required> -->
+    <!-- <input type="password" id="password" placeholder="Senha" required> -->
+
+    <input type="text" name="keyword" placeholder="Palavras-chave separadas por vírgula" required>
 
 
-    </div>
-{% endfor %}
+    <button type="submit">Enviar</button>
+</form>
+
+<div id="results"></div>
+
+<script src="static/script.js"></script>
