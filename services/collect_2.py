@@ -1,20 +1,33 @@
+from flask import Flask,request, jsonify
 import requests
+from datetime import datetime, timedelta, timezone
 
 BASE_URL = "https://pncp.gov.br/api/search/"
 
-from datetime import datetime, timedelta, timezone
-
-def eh_recente(data_str, dias=90):
-    try:
-        data = datetime.fromisoformat(data_str.replace("Z", "+00:00"))
-        limite = datetime.now(timezone.utc) - timedelta(days=dias)
-        return data >= limite
-    except Exception as e:
-        print("Erro ao converter data:", data_str, e)
+def is_current(data_str, dias=7): 
+    if not data_str: 
         return False 
 
+    try:
+        dias = int(dias)
 
-def coletar_licitacoes_reais(max_paginas=5, tamanho=10):
+        data_str = data_str.replace("Z", "+00:00") 
+        data = datetime.fromisoformat(data_str) 
+
+        if data.tzinfo is None: 
+            data = data.replace(tzinfo=timezone.utc)
+
+        limite = datetime.now(timezone.utc) - timedelta(days=dias)
+
+        return data >= limite 
+
+    except Exception as e: 
+        print("Erro ao converter data:", data_str, e) 
+        return False
+
+def coletar_licitacoes_reais(max_paginas=10, tamanho=10, palavras_chave=None, number_days=None):
+    number_days = number_days or 7
+    
     headers = {
         "User-Agent": "Mozilla/5.0",
         "Accept": "application/json"
@@ -24,6 +37,7 @@ def coletar_licitacoes_reais(max_paginas=5, tamanho=10):
 
     for page in range(1, max_paginas + 1):
         params = {
+            "q":  palavras_chave or "software juridico",
             "tipos_documento": "edital",
             "ordenacao": "-data",
             "pagina": page,
@@ -31,8 +45,7 @@ def coletar_licitacoes_reais(max_paginas=5, tamanho=10):
             "status": "recebendo_proposta"
         }
 
-        response = requests.get(BASE_URL, headers=headers, params=params, timeout=15)
-
+        response = requests.get(BASE_URL, headers=headers, params=params, timeout=15)    
         print(f"\n Página {page} - Status:", response.status_code)
 
         if response.status_code != 200:
@@ -46,11 +59,19 @@ def coletar_licitacoes_reais(max_paginas=5, tamanho=10):
             print("Sem mais resultados, parando...")
             break
 
+        if isinstance(data, dict):
+            results = data.get("resultados") or data.get("items") or []
+        elif isinstance(data, list):
+            results = data
+        else:
+            results = []
         for item in results:
+            if not isinstance(item, dict):
+                continue
+            
+            data_pub = item.get("data_publicacao_pncp") or item.get("dataPublicacao")
 
-            data_pub = item.get("data_publicacao") or item.get("dataPublicacao")
-
-            if data_pub and not eh_recente(data_pub):
+            if data_pub and not is_current(data_pub, number_days):
                 continue 
             
             try:
@@ -85,7 +106,6 @@ def coletar_licitacoes_reais(max_paginas=5, tamanho=10):
 
 def buscar_itens(cnpj, ano, numero):
     url = f"https://pncp.gov.br/api/pncp/v1/orgaos/{cnpj}/compras/{ano}/{numero}/itens"
-    print("url:",url)
     headers = {
         "User-Agent": "Mozilla/5.0",
         "Accept": "application/json"
