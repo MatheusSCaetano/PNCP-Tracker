@@ -5,21 +5,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# def montar_link(item):
-#     cnpj = item.get("orgao_cnpj") or ""
-#     sequencial_contrato = item.get("numero_sequencial") or ""
-#     ano_contrato = item.get("ano") or ""
-#     numero = item.get("numero")
-
-#     if all([cnpj, ano_contrato, numero]):
-#         return f"https://pncp.gov.br/app/editais/{cnpj}/{ano_contrato}/{numero}"
-    
-#     return "Link indisponível"
-
-def send_email(lista):
-    print("Entrou no send_email")
-    print("Quantidade de itens:", len(lista))
-    if not lista:
+def send_email(list):
+    if not list:
         print("Lista vazia, não enviando email")
         return
 
@@ -34,7 +21,7 @@ def send_email(lista):
         f"valorTotal: {item.get("valorTotal")}\n"
         f"Link: {item.get("link")}\n"
         f"{'-'*40}"
-        for item in lista
+        for item in list
     ])
     msg = MIMEText(corpo)
     msg["Subject"] = "Novas Licitações Encontradas"
