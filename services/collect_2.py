@@ -22,31 +22,31 @@ def coletar_licitacoes_reais(max_paginas=5, tamanho=10):
 
     licitacoes = []
 
-    for pagina in range(1, max_paginas + 1):
+    for page in range(1, max_paginas + 1):
         params = {
             "tipos_documento": "edital",
             "ordenacao": "-data",
-            "pagina": pagina,
+            "pagina": page,
             "tam_pagina": tamanho,
             "status": "recebendo_proposta"
         }
 
         response = requests.get(BASE_URL, headers=headers, params=params, timeout=15)
 
-        print(f"\n Página {pagina} - Status:", response.status_code)
+        print(f"\n Página {page} - Status:", response.status_code)
 
         if response.status_code != 200:
             print("Erro ao buscar dados")
             continue
 
         data = response.json()
-        resultados = data.get("resultados") or data.get("items") or data
+        results = data.get("resultados") or data.get("items") or data
 
-        if not resultados:
+        if not results:
             print("Sem mais resultados, parando...")
             break
 
-        for item in resultados:
+        for item in results:
 
             data_pub = item.get("data_publicacao") or item.get("dataPublicacao")
 

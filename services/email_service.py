@@ -5,16 +5,16 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def montar_link(item):
-    cnpj = item.get("orgao_cnpj") or ""
-    sequencial_contrato = item.get("numero_sequencial") or ""
-    ano_contrato = item.get("ano") or ""
-    numero = item.get("numero")  # ou sequencial
+# def montar_link(item):
+#     cnpj = item.get("orgao_cnpj") or ""
+#     sequencial_contrato = item.get("numero_sequencial") or ""
+#     ano_contrato = item.get("ano") or ""
+#     numero = item.get("numero")
 
-    if all([cnpj, ano_contrato, numero]):
-        return f"https://pncp.gov.br/app/editais/{cnpj}/{ano}/{numero}"
+#     if all([cnpj, ano_contrato, numero]):
+#         return f"https://pncp.gov.br/app/editais/{cnpj}/{ano_contrato}/{numero}"
     
-    return "Link indisponível"
+#     return "Link indisponível"
 
 def send_email(lista):
     print("Entrou no send_email")
@@ -36,16 +36,6 @@ def send_email(lista):
         f"{'-'*40}"
         for item in lista
     ])
-
-    #  "id" : str(item.get("id")),
-    #         "cnpj": item.get("cnpj"),
-    #         "description": item.get("descricao"),
-    #         "titulo": item.get("titulo"),
-    #         "valorTotal": item.get("valor"),
-    #         "orgao": item.get("municipio") + " - " + item.get("estado"),
-    #         "link": item.get("link") or "https://pncp.gov.br",
-    #     })
-
     msg = MIMEText(corpo)
     msg["Subject"] = "Novas Licitações Encontradas"
     msg["From"] = EMAIL_USER
