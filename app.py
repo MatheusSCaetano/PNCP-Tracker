@@ -1,11 +1,10 @@
 from flask import app, jsonify, request, render_template
 from flask import Flask
-from services.collect import get_editais
 from services.parser import organize
 from services.filter import filter
 from services.storage import save, exists
 from services.email_service import send_email
-from services.collect_2 import coletar_licitacoes_reais, enriquecer_com_itens
+from services.collect import coletar_licitacoes_reais, enriquecer_com_itens
 
 app = Flask(__name__)
 
@@ -21,7 +20,7 @@ def coletar_licitacoes():
     palavras_chave = data.get("palavras_chave")
     number_days = data.get("number_days", 7)
 
-    print("Dados recebidos:", data)
+    # print("Dados recebidos:", data)
 
     editais = coletar_licitacoes_reais(max_paginas=max_paginas, tamanho=tamanho, palavras_chave=palavras_chave, number_days=number_days)
     # print(f"Editais coletados: {len(editais)}")
