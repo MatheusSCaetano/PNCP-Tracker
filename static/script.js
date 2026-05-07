@@ -1,4 +1,5 @@
 document.getElementById("licitacao-form").addEventListener("submit", async (e) => {
+    
     e.preventDefault();
 
     const formData = new FormData(e.target);
@@ -7,8 +8,10 @@ document.getElementById("licitacao-form").addEventListener("submit", async (e) =
         number_days: formData.get("number_days"),
         // email: formData.get("email"),
         // senha: formData.get("senha"),
-        keywords: formData.get("keywords").split(",").map(p => p.trim())
+        keywords: formData.get("keywords")//.split(",").map(p => p.trim())
     };
+
+    console.log("Dados a serem enviados:", dados);
 
     const res = await fetch("/licitacoes", {
         method: "POST",
