@@ -1,0 +1,13 @@
+venv/
+node_modules/
+__pycache__/
+*.pyc
+dist/
+build/
+.env
+*.db
+*.sqlite3
+dist-electron/
+venv/
+node_modules/
+electron/node_modules/
